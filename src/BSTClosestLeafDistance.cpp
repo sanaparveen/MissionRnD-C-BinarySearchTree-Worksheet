@@ -33,13 +33,55 @@ Return -1 ,for Invalid Inputs
 #include <stdlib.h>
 #include <stdio.h>
 
+#define MAX 100
+
 struct node{
   struct node * left;
   int data;
   struct node *right;
 };
 
+int min_node(int node1, int node2)
+{
+	return (node1 < node2) ? node1 : node2;
+}
+
+int closest_down(struct node *root)
+{
+	if (root == NULL)return MAX;
+	return ((root->left == NULL) && (root->right == NULL)) ? 0 : (min_node(closest_down(root->left), closest_down(root->right)) + 1);
+}
+
+int find_closest(struct node *root, char node, int *found, int level, int *index)
+{
+	if (root == NULL)return MAX;
+	if (root->data == node)
+	{
+		*found = 1;
+		*index = level;
+		return closest_down(root);
+	}
+	if ((root->left == NULL) && (root->right == NULL))
+		return 0;
+
+	int dist1 = find_closest(root->left, node, found, level + 1, index);
+	if (*found)
+		return min_node((closest_down(root->right) + ((*index) - level)) + 1, dist1);
+	int dist2 = find_closest(root->right, node, found, level + 1, index);
+	if (*found)
+		return min_node((dist1 + ((*index) - level)) + 1, dist2);
+	return min_node(dist1, dist2) + 1;
+}
+
+
 int get_closest_leaf_distance(struct node *root, struct node *temp)
 {
-  return -1;
+	if (!root || !temp) return -1;
+	char node = temp->data;
+	int found = 0,index = -1;
+
+	int result = find_closest(root, node, &found, 0, &index);
+
+	if (found) return result;
+	return -1;
 }
