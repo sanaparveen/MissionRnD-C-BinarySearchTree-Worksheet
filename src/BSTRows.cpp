@@ -29,9 +29,47 @@ struct node{
 	struct node *right;
 };
 
-
-
-int* BSTRighttoLeftRows(struct node* root)
+int get_height_tree(struct node *root)
 {
-    return NULL;
+	if (root == NULL) return 0;
+
+	int left_height  = get_height_tree(root->left);
+	int right_height = get_height_tree(root->right);
+
+	return (left_height > right_height) ? left_height + 1 : right_height + 1; 
+
 }
+
+
+void right_to_left_row(struct node *root, int *result, int *index, int row)
+{
+	if (root == NULL) return;
+
+	if (row == 1)
+	{
+		result[*index] = root->data;
+		*index = *index + 1;
+	}
+	else
+	{
+		right_to_left_row(root->right, result, index, row - 1);
+		right_to_left_row(root->left, result, index, row - 1);
+
+	}
+}
+
+int* BSTRighttoLeftRows(struct node *root)
+{	
+	if (root == NULL) return NULL;
+
+	int height = get_height_tree(root),
+    *result = (int *)malloc(height * sizeof(int)),
+	index = 0, row = 1;
+
+	while (row <= height)
+		right_to_left_row(root, result, &index, row++);
+
+	return result;
+}
+
+

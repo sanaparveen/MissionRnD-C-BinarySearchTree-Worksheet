@@ -32,6 +32,47 @@ struct node{
 	struct node *right;
 };
 
+void swap(struct node **node1, struct node **node2);
+
+void correct_bst(struct node * root, struct node **first, struct node **last, struct node **prev)
+{
+	if (root)
+	{
+
+		correct_bst(root->left, first, last, prev); //left sub tree
+
+		if (*prev != NULL && (*prev)->data > root->data)
+		{
+			if (!(*first))
+			{
+				*first = *prev;
+				*last = root;
+			}
+			else
+				*last = root;
+		}
+
+		*prev = root;
+		correct_bst(root->right, first, last, prev); //right subtree
+	}
+
+}
 void fix_bst(struct node *root){
 
+	if (root == NULL) return;
+
+	struct node *first = NULL, *last = NULL, *prev = NULL;
+
+
+	correct_bst(root, &first, &last, &prev); //find the two nodes
+
+	if (last != NULL && first != NULL) //fix the tree
+		swap(&first, &last);
+}
+
+void swap(struct node **node1, struct node **node2)
+{
+	int temp = (*node1)->data;
+	(*node1)->data = (*node2)->data;
+	(*node2)->data = temp;
 }
